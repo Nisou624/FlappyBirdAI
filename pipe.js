@@ -1,6 +1,6 @@
 class pipe{
-    space = 127;
-    maxHeight = 300;
+    space = 125;
+    maxHeight = 400;
     minHeight = 100;
     constructor(x,y,width){
         this.x = x;
@@ -32,7 +32,6 @@ class pipe{
     }
 
     draw(ctx){
-        ctx.fillStyle = 'green';
         ctx.drawImage(this.pipeBodyR, this.x+5, 0, this.width-10, this.height-50);
         ctx.drawImage(this.pipeHeadR, this.x, this.height-50, this.width, 50);
         const bottomPipeY = this.height + this.space;

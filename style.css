@@ -9,3 +9,8 @@ body{
     margin-top: 50px;
     background: #70C5CD;
 }
+
+@font-face {
+    font-family: FF;
+    src: url(flappy-bird-font.ttf);
+}

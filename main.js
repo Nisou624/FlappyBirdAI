@@ -14,7 +14,8 @@ var game = {
         this.canvas.width = game.width
         this.canvas.height = game.height
         this.frameNo = 0;
-        this.framePerObstacle = 150;
+        this.framePerObstacle = 115;
+        this.framePerGround = 10;
         requestAnimationFrame(gameloop);
         window.addEventListener("keypress", function(e) {
 			if (e.key == " ") {
@@ -29,28 +30,66 @@ var game = {
 
 }
 
+
+// MOUSE POS DETECTOR
+function getMousePos(canvas, event) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+}
+
+bg = new Image();
+bg.src = 'Sprites/background.png';
+
+g = new Image();
+g.src = 'Sprites/ground.png';
+
+let yGround = game.height - 50
+
 var Obstacles = [];
 bird = new bird(game.width/2- 80, game.height/2)
 
+var grounds = []
+
 function init(){
+    let maxGround = Math.ceil(game.width / 37) + 10
+    console.log(maxGround)
+    for(i = 1; i <= maxGround; i++){
+        grounds.push(new ground((i * 37) - 37, yGround))
+    }
     bird.draw(game.context)
     game.start()
 }
 
 function drawAll(){
+    
+    game.context.drawImage(bg, 0, 0, game.width, game.height);
+    
     Obstacles.forEach(Obstacle => {
         Obstacle.draw(game.context)
     })
-    bird.draw(game.context)
+    grounds.forEach(ground =>{
+        ground.draw(game.context)
+    })
+    bird.draw(game.context);
+
+    game.context.save()
+    game.context.fillStyle = 'black'
+    game.context.font = '50px FF'
+    let scoreY = game.stopGame ? game.canvas.height/2 - 25 : game.canvas.height/4 - 25
+    game.context.fillText(bird.score, game.canvas.width/2 - 25, scoreY);
+    //game.context.fillStyle = 'white'
+    //game.stopGame ? game.context.fillRect(game.canvas.width/2, scoreY + 25, 25, 25) : null
+    game.context.restore()
 }
 
 function gameloop(){
     game.context.clearRect(0, 0, game.width, game.height);
     updateGame();
     drawAll();
-    if(!game.stopGame){
-        requestAnimationFrame(gameloop);
-    }
+    requestAnimationFrame(gameloop);
 }
 
 function frameInterval(n) {
@@ -64,71 +103,38 @@ function updateGame(){
     game.frameCounter++;
     if(game.state == 'playing'){
 
-        if(frameInterval(game.framePerObstacle)){
-            Obstacles.push(new pipe(gc.width, gc.height-440, 100)) //max Height = 560, min height = 200
-            game.framesPerObstacle = Math.floor(Math.random() * (90 - 70 + 1) + 90); //one obstacle per a randomly computed frame
-			game.frameCounter = 2;
-            console.log(Obstacles)
-        }
         bird.update(game.context)
-        Obstacles.forEach(Obstacle => {
-            Obstacle.update()
-            if(!Obstacle.passed) bird.hasPassed(Obstacle)
-            if(bird.collision(Obstacle, game.context)){
-                bird.controls = null
-                bird.angle = 90
-            }
-            if(Obstacle.filter()) Obstacles.shift()
+
+    }
+
+    if(!game.stopGame){
+        bird.gravity = 0.6
+        if(frameInterval(game.framePerGround)){
+            grounds.push(new ground(game.width, yGround))
+        }
+        grounds.forEach(ground =>{
+            ground.update()
         })
-    }else if(game.state == "gameOver"){
-        bird.controls = null;
-        bird.angle = 90
+
+        if(game.state == 'playing'){
+            if(frameInterval(game.framePerObstacle)){
+                Obstacles.push(new pipe(gc.width, gc.height-440, 100)) //max Height = 560, min height = 200
+                game.framesPerObstacle = Math.floor(Math.random() * (90 - 70 + 1) + 90); //one obstacle per a randomly computed frame
+            }
+            Obstacles.forEach(Obstacle => {
+                Obstacle.update()
+                if(!Obstacle.passed) bird.hasPassed(Obstacle)
+                if(bird.collision(Obstacle, game.context)){
+                    bird.angle = 90
+                    bird.controls = null;
+                    game.stopGame = true
+                }
+                if(Obstacle.filter()) Obstacles.shift()
+            })
+        }
+
     }
 }
 
 
 window.onload = init;
-
-
-
-
-
-/* 
-
-
-gc.height = 640;
-gc.width = 480;
-gc.frameNo = 0
-
-let update = false;
-
-bird = new bird(gc.width/2- 80, gc.height/2, 20)
-bird.draw(gctx);
-
-var Tpipe = [];
-
-function everyinterval(n) {
-    if ((gc.frameNo / n) % 1 == 0) {return true;}
-    return false;
-}
-
-animate();
-
-function animate(){
-    gctx.clearRect(0, 0, gc.width, gc.height);
-    this.frameNo += 1
-    bird.update(gc);
-    bird.draw(gctx);
-    if(bird.abg){
-        if(gc.frameNo == 1 || everyinterval(150)){
-            console.log("za3ma y'a un truc")   
-            Tpipe.push(new pipe(gc.width, gc.height-300, 100, 400))
-        }
-        for(i = 0; i < Tpipe.length; i++){
-            Tpipe[i].update();
-            Tpipe[i].draw(gctx)
-        }
-    }
-    requestAnimationFrame(animate);
-}
-*/

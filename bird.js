@@ -14,15 +14,15 @@ class bird{
         this.image = new Image();
         this.image.src = this.imgSrc;
 
-        this.gravity = 0.5;
+        this.gravity = 0.6;
         this.speed = 0
     }
 
 
     update(){
-        if(this.y + this.radius <= 600){
+        if(this.y + this.radius <= 590){
             if(this.controls?.jump){
-                this.speed = - 4.6
+                this.speed = - 6
                 this.angle >= -25 ? this.angle -= 11 : this.angle = -25
             }
             this.speed += this.gravity
@@ -35,7 +35,6 @@ class bird{
     hasPassed(object){
         if(this.x >= object.x + object.width/2){
             this.score++
-            console.log("psahtek +1 au score chef")
             object.passed = true
         }
     }
@@ -58,12 +57,6 @@ class bird{
         ctx.translate(this.x, this.y)
         ctx.rotate(this.angle * deg)
         ctx.drawImage(this.image, 0 - 28, 0 - 20, 56, 40)
-        //ctx.restore()
-        ctx.fillStyle = 'black'
-        ctx.fillRect(0+this.radius, 0, 3, 5)
-        ctx.beginPath();
-        ctx.arc(0 ,0, 24, 0, Math.PI * 2)
-        ctx.stroke()
         ctx.restore();
     }
 }
