@@ -17,8 +17,8 @@ var game = {
         this.framePerObstacle = 115;
         this.framePerGround = 10;
         requestAnimationFrame(gameloop);
-        window.addEventListener("keypress", function(e) {
-			if (e.key == " ") {
+        window.addEventListener("keyup", function(e) {
+			if (e.key == " " || e.key == 'ArrowUp') {
 				game.state = "playing";
 			}
 		});
@@ -65,7 +65,6 @@ let maxGround
 
 function init(){
     maxGround = Math.ceil(game.width / 37) + 10
-    console.log(maxGround)
     for(i = 1; i <= maxGround; i++){
         grounds.push(new ground((i * 37) - 37, yGround))
     }
@@ -177,7 +176,7 @@ function updateGame(){
         }
     }else {
         let bestScore = localStorage?.getItem('Best Score')
-        localStorage.setItem('Best Score', bird.score > bestScore ? bird.score : bestScore);
+        localStorage.setItem('Best Score', bird.score > bestScore ? bird.score : bestScore == null ? 0 : bestScore);
         game.canvas.addEventListener("click", function (ev){
             let mouse = getMousePos(game.canvas, ev)
             if(mouse.x <= game.width/2 - 63 + 107 && mouse.x >= game.width/2 - 63
