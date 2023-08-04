@@ -46,6 +46,11 @@ bg.src = 'Sprites/background.png';
 g = new Image();
 g.src = 'Sprites/ground.png';
 
+score = new Image();
+score.src = 'Sprites/score.png'
+
+let bestScore = localStorage?.getItem('Best Score')
+
 let yGround = game.height - 50
 
 var Obstacles = [];
@@ -66,7 +71,7 @@ function init(){
 function drawAll(){
     
     game.context.drawImage(bg, 0, 0, game.width, game.height);
-    
+
     Obstacles.forEach(Obstacle => {
         Obstacle.draw(game.context)
     })
@@ -77,11 +82,14 @@ function drawAll(){
 
     game.context.save()
     game.context.fillStyle = 'black'
-    game.context.font = '50px FF'
-    let scoreY = game.stopGame ? game.canvas.height/2 - 25 : game.canvas.height/4 - 25
-    game.context.fillText(bird.score, game.canvas.width/2 - 25, scoreY);
-    //game.context.fillStyle = 'white'
-    //game.stopGame ? game.context.fillRect(game.canvas.width/2, scoreY + 25, 25, 25) : null
+    game.context.font = `${game.stopGame ? '30px' : '50px'} FF`
+    let scoreX =  game.stopGame ? game.canvas.width/2 +20 : game.canvas.width/2 - 25;
+    let scoreY =  game.stopGame ? game.canvas.height/2 - 25 : game.canvas.height/4 - 25
+    if(game.stopGame){
+        game.context.drawImage(score, game.width/2 - 85, game.height/2 - 85, 150, 150)
+        game.context.fillText(bestScore, scoreX , scoreY + 40);
+    }
+    game.context.fillText(bird.score, scoreX , scoreY);
     game.context.restore()
 }
 
@@ -99,16 +107,15 @@ function frameInterval(n) {
 	return false;
 }
 
+
 function updateGame(){
     game.frameCounter++;
-    if(game.state == 'playing'){
+    bird.updatePos()
 
-        bird.update(game.context)
-
-    }
-
+    bird.hg() ? game.stopGame = true : null
+    
     if(!game.stopGame){
-        bird.gravity = 0.6
+
         if(frameInterval(game.framePerGround)){
             grounds.push(new ground(game.width, yGround))
         }
@@ -117,6 +124,8 @@ function updateGame(){
         })
 
         if(game.state == 'playing'){
+            bird.updateAngle()
+            bird.gravity = 0.6  
             if(frameInterval(game.framePerObstacle)){
                 Obstacles.push(new pipe(gc.width, gc.height-440, 100)) //max Height = 560, min height = 200
                 game.framesPerObstacle = Math.floor(Math.random() * (90 - 70 + 1) + 90); //one obstacle per a randomly computed frame
@@ -127,12 +136,21 @@ function updateGame(){
                 if(bird.collision(Obstacle, game.context)){
                     bird.angle = 90
                     bird.controls = null;
-                    game.stopGame = true
+                    game.stopGame = true;
                 }
                 if(Obstacle.filter()) Obstacles.shift()
             })
         }
+    }else {
+        let bestScore = localStorage?.getItem('Best Score')
+        localStorage.setItem('Best Score', bird.score > bestScore ? bird.score : bestScore);
+        game.canvas.addEventListener("click", function (ev){
+            let mouse = getMousePos(game.canvas, ev)
 
+            /*
+                
+            */
+        })
     }
 }
 

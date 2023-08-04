@@ -14,22 +14,42 @@ class bird{
         this.image = new Image();
         this.image.src = this.imgSrc;
 
-        this.gravity = 0.6;
+        this.gravity = 0;
         this.speed = 0
     }
 
 
-    update(){
+    updatePos(){
         if(this.y + this.radius <= 590){
             if(this.controls?.jump){
                 this.speed = - 6
-                this.angle >= -25 ? this.angle -= 11 : this.angle = -25
             }
             this.speed += this.gravity
             this.y += this.speed;
     
+        }
+    }
+
+    updateAngle(){
+        if(this.y + this.radius <= 590){
+            if(this.controls?.jump){
+                this.angle >= -25 ? this.angle -= 11 : this.angle = -25
+            }
             this.angle <= 90 ? this.angle++ : this.angle = 90
         }
+    }
+
+    hg(){
+        if(this.y + this.radius <= 590){
+            return false;
+        }else {
+            return true;
+        }
+    }
+
+    UA(){
+        this.updateAngle()
+        this.updatePos()
     }
 
     hasPassed(object){
