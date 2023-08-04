@@ -49,17 +49,22 @@ g.src = 'Sprites/ground.png';
 score = new Image();
 score.src = 'Sprites/score.png'
 
-let bestScore = localStorage?.getItem('Best Score')
+restart = new Image();
+restart.src = 'Sprites/restart.png'
+
+//let bestScore = localStorage?.getItem('Best Score')
 
 let yGround = game.height - 50
 
 var Obstacles = [];
-bird = new bird(game.width/2- 80, game.height/2)
 
 var grounds = []
+bird = new Bird(game.width/2- 80, game.height/2)
+
+let maxGround
 
 function init(){
-    let maxGround = Math.ceil(game.width / 37) + 10
+    maxGround = Math.ceil(game.width / 37) + 10
     console.log(maxGround)
     for(i = 1; i <= maxGround; i++){
         grounds.push(new ground((i * 37) - 37, yGround))
@@ -68,10 +73,12 @@ function init(){
     game.start()
 }
 
+//function that draws the elements in the screen
 function drawAll(){
     
-    game.context.drawImage(bg, 0, 0, game.width, game.height);
+    game.context.drawImage(bg, 0, 0, game.width, game.height); //drawing the background
 
+    //drawing the moving entities
     Obstacles.forEach(Obstacle => {
         Obstacle.draw(game.context)
     })
@@ -80,16 +87,30 @@ function drawAll(){
     })
     bird.draw(game.context);
 
+    if(game.stopGame) game.context.drawImage(restart, game.width/2 - 63, game.height/2 + 87, 107, 35)
+
+    //drawing the score
+    drawScore();
+}
+
+function drawScore(){
     game.context.save()
     game.context.fillStyle = 'black'
-    game.context.font = `${game.stopGame ? '30px' : '50px'} FF`
-    let scoreX =  game.stopGame ? game.canvas.width/2 +20 : game.canvas.width/2 - 25;
-    let scoreY =  game.stopGame ? game.canvas.height/2 - 25 : game.canvas.height/4 - 25
-    if(game.stopGame){
+    let scoreX =  game.stopGame ? game.canvas.width/2 + 10 : game.canvas.width/2 - 25;   //the X position of the Score depending of the game State  
+    let scoreY =  game.stopGame ? game.canvas.height/2 - 25 : game.canvas.height/4 - 25  //the Y position of the Score depending of the game State 
+    
+    game.context.font = `${game.stopGame ? '30px' : '50px'} FF` //font and size of Score depending of the game State
+    
+    if(!game.stopGame){
+        game.context.fillText(bird.score, scoreX , scoreY);
+    }else{
         game.context.drawImage(score, game.width/2 - 85, game.height/2 - 85, 150, 150)
-        game.context.fillText(bestScore, scoreX , scoreY + 40);
+        game.context.fillText(localStorage?.getItem('Best Score'), scoreX , scoreY + 50);
+        game.context.fillText(bird.score, scoreX , scoreY);
+        game.context.font = '50px FFL'
+        game.context.fillText("Score", scoreX - 85, scoreY - 5)
+        game.context.fillText('Best', scoreX - 85, scoreY + 45)
     }
-    game.context.fillText(bird.score, scoreX , scoreY);
     game.context.restore()
 }
 
@@ -105,6 +126,19 @@ function frameInterval(n) {
 		return true;
 	}
 	return false;
+}
+
+function reset(){
+    Obstacles = [];
+    grounds = [];
+    for(i = 1; i <= maxGround; i++){
+        grounds.push(new ground((i * 37) - 37, yGround))
+    }
+    game.frameCounter = 0;
+    bird = new Bird(game.width/2- 80, game.height/2)
+    //init()
+    game.state = "beginning";
+    game.stopGame = false;
 }
 
 
@@ -146,7 +180,10 @@ function updateGame(){
         localStorage.setItem('Best Score', bird.score > bestScore ? bird.score : bestScore);
         game.canvas.addEventListener("click", function (ev){
             let mouse = getMousePos(game.canvas, ev)
-
+            if(mouse.x <= game.width/2 - 63 + 107 && mouse.x >= game.width/2 - 63
+            && mouse.y >= game.height/2 + 87 && mouse.y <= game.height/2 + 87 + 35){
+                reset()
+            }
             /*
                 
             */

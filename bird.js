@@ -1,4 +1,4 @@
-class bird{
+class Bird{
     constructor(x, y){
 
         this.score = 0
